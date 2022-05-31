@@ -5,7 +5,7 @@ import math
 
 
 VERSION = 1
-reserved = ["LET", "PRINT", "INPUT", "IF", "GOTO",
+reserved = ["LET", "PRINT", "INPUT", "IF", "ELSE","GOTO",
             "SLEEP", "END", "LIST", "REM", "READ",
             "WRITE", "APPEND", "RUN", "CLS", "CLEAR",
             "EXIT", "ABS", "SIN", "COS"]#write read append 讀檔 寫入 加入
@@ -29,12 +29,12 @@ def main():
             try:
                 if printReady:
                     print("OK.")
-                nextLine = input()
-                if len(nextLine) > 0:
-                    executeTokens(lex(nextLine))
-            except KeyboardInterrupt:
+                nextLine = input() #輸入之內容存進nextLine(下一步要做的指令)
+                if len(nextLine) > 0: #如果nextLine裡有東西
+                    executeTokens(lex(nextLine)) #()裡面是token(行號)
+            except KeyboardInterrupt: #如果執行中按Ctrl+C，要強制停止
                 pass
-            except SystemExit:
+            except SystemExit: #關閉終端機
                 print("Bye!")
                 break
             except:
@@ -59,7 +59,7 @@ def isValidIdentifier(token):
     if len(token) > 1:
         if token[-1] == "$":
             token = token[0:-1]
-    if not(token[0].lower() in "abcdefghijklmnopqrstuvwxyz"):
+    if not(token[0].lower() in "abcdefghijklmnopqrstuvwxyz"):#lower() 方法轉換字符串中所有大寫字符為小寫。
         return False
     for c in token[1:]:
         if not(token[0].lower() in "abcdefghijklmnopqrstuvwxyz0123456789"):
@@ -74,17 +74,17 @@ def lex(line):#分類
     line = line + " "
     for c in line:
         if not(inString) and c in " ()\"":
-            if len(currentToken) != 0:
-                tokens.append([currentToken, "TBD"])
+            if len(currentToken) != 0: #如果currentToken裡有東西
+                tokens.append([currentToken, "TBD"])#TBD:代定
                 currentToken = ""
             if c == '"':
                 inString = True
         elif inString and c == '"':
-            tokens.append([currentToken, "STRING"]) 
+            tokens.append([currentToken, "STRING"]) #將()中的東西新增到tokens的尾巴後
             currentToken = ""
             inString = False
         else:
-            currentToken += c
+            currentToken += c #當前行數=當前行數+c
     # Le asigno un tipo a cada token
     for token in tokens:#整行叫tokens
         if token[1] != "TBD":
@@ -93,16 +93,16 @@ def lex(line):#分類
         if is_number(value):
             token[0] = float(token[0])
             token[1] = "NUM" #Number
-        elif value.upper() in reserved:
+        elif value.upper() in reserved:#upper()方法將字符串中的所有小寫字符轉換為大寫字符並返回。
             token[0] = value.upper()
             token[1] = "RESVD" #Reserved word
-        elif value.upper() == "THEN":
+        elif value.upper() == "THEN": #upper()方法將字符串中的所有小寫字符轉換為大寫字符並返回。
             token[0] = value.upper()
             token[1] = "THEN"
         elif value == "=":
             token[1] = "ASGN"
         elif isValidIdentifier(token[0]):
-            token[1] = "ID" #Identifier
+            token[1] = "ID" #Identifier #全部變數都是ID
         else:
             for i in range(0, len(operators)):
                 if token[0] in operators[i]:
@@ -116,29 +116,29 @@ def executeTokens(tokens):#執行指令
         lineNumber = int(tokens.pop(0)[0])
         if len(tokens) != 0:
             lines[lineNumber] = tokens
-            if lineNumber > maxLine:
+            if lineNumber > maxLine:#maxLine是現在有寫之指令最大行數
                 maxLine = lineNumber
         else:
             lines.pop(lineNumber, None)
         printReady = False
         return
-    if tokens[0][1] != "RESVD":
+    if tokens[0][1] != "RESVD": #存資料
         print(f"Error: Unknown command {tokens[0][0]}.")
     else:
         command = tokens[0][0] #command 是指令
-        if command == "REM": #註解
+        if command == "REM": #增加註解
             return
-        elif command == "CLS":
-            print("\n"*500)
-        elif command == "END":
-            stopExecution = True #end的情況
-        elif command == "EXIT":
+        elif command == "CLS":#清空屏幕
+            print("\n"*500)#連續換500行
+        elif command == "END":#結束
+            stopExecution = True 
+        elif command == "EXIT":#關掉終端機
             quit() #離開 內建
-        elif command == "CLEAR":#清空
+        elif command == "CLEAR":#清除前面所寫之指令
             maxLine = 0
             lines = {}
             identifiers = {}
-        elif command == "LIST":
+        elif command == "LIST":#列出前面所寫之指令
             i = 0
             while i <= maxLine:
                 if i in lines:
@@ -171,6 +171,9 @@ def executeTokens(tokens):#執行指令
         elif command == "GOTO":
             if not(gotoHandler(tokens[1:])): stopExecution = True
         elif command == "IF":
+            if not(ifHandler(tokens[1:])): stopExecution = True
+
+        elif command == "ELSE":                                     #else
             if not(ifHandler(tokens[1:])): stopExecution = True
         elif command == "RUN":
             linePointer = 0
@@ -243,6 +246,29 @@ def ifHandler(tokens):
             return      #flase
         executeTokens(tokens[i+1:]) #執行指令
     return True
+def elseHandler(tokens):
+    thenPos = None
+    for i in range(0, len(tokens)): #i=0~指令長度
+        if tokens[i][1] == "THEN":
+            thenPos = i
+            break
+        if tokens[i][1] == "ELSE":
+            thenPos = i
+            break
+    if thenPos == None:
+        print("Error: Malformed IF statement.")#IF格式錯誤
+        return
+    exprValue = solveExpression(tokens[0:thenPos], 0) #解碼指令定位且層數=0
+    if exprValue == None:
+        return
+    elif exprValue[0] != 0:
+        if len(tokens[i+1:]) == 0: #i+1的指令長度
+            print("Error: Malformed IF statement.")#IF格式錯誤
+            return      #flase
+        executeTokens(tokens[i+1:]) #執行指令
+    return True
+
+
 
 def letHandler(tokens):#處理程序
     varName = None

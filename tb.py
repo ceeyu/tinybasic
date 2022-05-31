@@ -8,13 +8,15 @@ VERSION = 1
 reserved = ["LET", "PRINT", "INPUT", "IF", "GOTO",
             "SLEEP", "END", "LIST", "REM", "READ",
             "WRITE", "APPEND", "RUN", "CLS", "CLEAR",
-            "EXIT", "ABS", "SIN", "COS"]
-operators = [["==", "!=", ">", "<", ">=", "<="],
+            "EXIT", "ABS", "SIN", "COS"]#write read append 讀檔 寫入 加入
+            #"LET", "PRINT", "INPUT", "IF", "GOTO","LIST", "REM", "READ", "RUN", "CLS", "CLEAR"
+operators = [["==", "!=", ">", "<", ">=", "<="], #第0層
              ["."],
              ["+", "-"],
-             ["*", "/", "&", "|", "%", "<<", ">>"],
-             ["^"]]
-lines = {}
+             ["*", "/", "&", "|", "%","<<", ">>"],
+             ["^"]] #已做好的運算符號(可使用) #第4層
+             #層數依據 越上面越先讀到
+lines = {} #lines存行號
 maxLine = 0
 linePointer = 0
 stopExecution = False
@@ -64,7 +66,7 @@ def isValidIdentifier(token):
             return False
     return True
     
-def lex(line):
+def lex(line):#分類
     # Splitteo la linea en varios tokens
     inString = False
     tokens = []
@@ -84,7 +86,7 @@ def lex(line):
         else:
             currentToken += c
     # Le asigno un tipo a cada token
-    for token in tokens:
+    for token in tokens:#整行叫tokens
         if token[1] != "TBD":
             continue
         value = token[0]
@@ -107,7 +109,7 @@ def lex(line):
                     token[1] = "OP"
     return tokens
 
-def executeTokens(tokens):
+def executeTokens(tokens):#執行指令
     global lines, maxLine, stopExecution, linePointer, printReady
     printReady = True
     if tokens[0][1] == "NUM":
@@ -123,16 +125,16 @@ def executeTokens(tokens):
     if tokens[0][1] != "RESVD":
         print(f"Error: Unknown command {tokens[0][0]}.")
     else:
-        command = tokens[0][0]
-        if command == "REM":
+        command = tokens[0][0] #command 是指令
+        if command == "REM": #註解
             return
         elif command == "CLS":
             print("\n"*500)
         elif command == "END":
-            stopExecution = True
+            stopExecution = True #end的情況
         elif command == "EXIT":
-            quit()
-        elif command == "CLEAR":
+            quit() #離開 內建
+        elif command == "CLEAR":#清空
             maxLine = 0
             lines = {}
             identifiers = {}
@@ -180,44 +182,44 @@ def executeTokens(tokens):
                         return
                 linePointer = linePointer + 1
 
-def getNumberPrintFormat(num):
+def getNumberPrintFormat(num):#給予整數值
     if int(num) == float(num):
         return int(num)
     return num
 
-def gotoHandler(tokens):
-    global linePointer
-    if len(tokens) == 0:
-        print("Error: Expected expression.")
-        return
-    newNumber = solveExpression(tokens, 0)
-    if newNumber[1] != "NUM":
-        print("Error: Line number expected.")
+def gotoHandler(tokens):#tokens 是行號
+    global linePointer #全域變數 行指令(一開始為0)
+    if len(tokens) == 0: #返回其長度或個數(length)，當指令長度為0
+        print("Error: Expected expression.") #期待的表示式
+        return  #沒有寫=false
+    newNumber = solveExpression(tokens, 0) #行數層數為0的地方
+    if newNumber[1] != "NUM": #如果不是NUM
+        print("Error: Line number expected.") #行數預期
     else:
         linePointer = newNumber[0] - 1
     return True
 
-def inputHandler(tokens):
+def inputHandler(tokens):#負責處理輸入的行號
     varName = None
-    if len(tokens) == 0:
-        print("Error: Expected identifier.")
+    if len(tokens) == 0: #指令長度為0
+        print("Error: Expected identifier.") #定義名稱發生衝突
         return
-    elif len(tokens) == 1 and tokens[0][1] == "ID":
-        varName = tokens[0][0]
-    else:
-        varName = solveExpression(tokens, 0)[0]
-        if not(isValidIdentifier(varName)):
-            print(f"Error: {varName} is not a valid identifier.")
-            return
+    elif len(tokens) == 1 and tokens[0][1] == "ID": #變數=ID
+        varName = tokens[0][0] #x
+    else: #solveExpression處理運算式
+        varName = solveExpression(tokens, 0)[0] #行數層數為0的地方，陣列0的地方
+        if not(isValidIdentifier(varName)):#有定義的字符
+            print(f"Error: {varName} is not a valid identifier.") #不是定義符號
+            return #沒有寫=false
     while True:
         print("?", end = '')
         varValue = input()
-        if getVarType(varName) == "STRING":
-            identifiers[varName] = [varValue, "STRING"]
+        if getVarType(varName) == "STRING":#判斷字串還是num
+            identifiers[varName] = [varValue, "STRING"] #標示為string與其值
             break
-        else:
-            if is_number(varValue):
-                identifiers[varName] = [varValue, "NUM"]
+        else:#num的情況
+            if is_number(varValue): #回傳數值
+                identifiers[varName] = [varValue, "NUM"]#標示為num與其值
                 break
             else:
                 print("Try again.")
@@ -225,70 +227,71 @@ def inputHandler(tokens):
 
 def ifHandler(tokens):
     thenPos = None
-    for i in range(0, len(tokens)):
+    for i in range(0, len(tokens)): #i=0~指令長度
         if tokens[i][1] == "THEN":
             thenPos = i
             break
     if thenPos == None:
-        print("Error: Malformed IF statement.")
+        print("Error: Malformed IF statement.")#IF格式錯誤
         return
-    exprValue = solveExpression(tokens[0:thenPos], 0)
+    exprValue = solveExpression(tokens[0:thenPos], 0) #解碼指令定位且層數=0
     if exprValue == None:
         return
     elif exprValue[0] != 0:
-        if len(tokens[i+1:]) == 0:
-            print("Error: Malformed IF statement.")
-            return      
-        executeTokens(tokens[i+1:])
+        if len(tokens[i+1:]) == 0: #i+1的指令長度
+            print("Error: Malformed IF statement.")#IF格式錯誤
+            return      #flase
+        executeTokens(tokens[i+1:]) #執行指令
     return True
 
-def letHandler(tokens):
+def letHandler(tokens):#處理程序
     varName = None
     varValue = None
     eqPos = None
-    for i in range(0, len(tokens)):
+    for i in range(0, len(tokens)):#0~指令長度
         if tokens[i][1] == "ASGN":
-            eqPos = i
+            eqPos = i #ASGN指令將位置令為i
             break
     if eqPos == None:
-        print("Error: Malformed LET statement.")
+        print("Error: Malformed LET statement.")#LET格式錯誤
         return
     if eqPos == 1 and tokens[0][1] == "ID":
-        varName = tokens[0][0]
+        varName = tokens[0][0] #varname設為指令最初位置
     else:
         if len(tokens[0:i]) == 0:
-            print("Error: Expected identifier.")
+            print("Error: Expected identifier.")#定義名稱發生衝突
             return
         varName = solveExpression(tokens[0:i], 0)
         if varName == None:
-            stopExecution = True
+            stopExecution = True #end的情況
             return
         varName = varName[0]
         if not(isValidIdentifier(varName)):
-            print(f"Error: {varName} is not a valid identifier.")
+            print(f"Error: {varName} is not a valid identifier.")#(變數)定義名稱不符合
             return
-    if len(tokens[i+1:]) == 0:
-        print("Error: Expected expression.")
+    if len(tokens[i+1:]) == 0: #下個指令長度為0
+        print("Error: Expected expression.")#定義名稱發生衝突
         return
     varValue = solveExpression(tokens[i+1:], 0)
     if varValue == None:
         return
     if getVarType(varName) != varValue[1]:
-        print(f"Error: Variable {varName} type mismatch.")
+        print(f"Error: Variable {varName} type mismatch.") #該變數發生型別不符
         return
-    identifiers[varName] = varValue
+    identifiers[varName] = varValue#將值賦予名稱定義
     return True
 
-def printHandler(tokens):
-    if len(tokens) == 0:
-        print("Error: Expected identifier.")
+def printHandler(tokens): #輸出
+    if len(tokens) == 0: #長度為0
+        print("Error: Expected identifier.")#定義名稱發生衝突
         return
     exprRes = solveExpression(tokens, 0)
     if exprRes == None:
         return
-    if exprRes[1] == "NUM":
-        exprRes[0] = getNumberPrintFormat(exprRes[0])
-    print(exprRes[0])
+    if exprRes[1] == "NUM":#若其為NUM
+        exprRes[0] = getNumberPrintFormat(exprRes[0]) #將exprRes[0]給予整數值
+    print(exprRes[0]) #輸出
+    
     return True
 
 def absHandler(tokens):                                   #ABS數學
@@ -505,9 +508,6 @@ def solveExpression(tokens, level): #數學運算的函式
         return tokens[0]
 
 main()
-<<<<<<< HEAD
 # Hello
 #HI
-=======
 #123
->>>>>>> aad435d9bac74e87c6e5fcdffadcc3063c115063

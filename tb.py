@@ -8,7 +8,7 @@ import time
 
 VERSION = 1
 reserved = ["LET", "PRINT", "INPUT", "IF", "ELSE","GOTO",
-            "SLEEP", "END", "LIST", "REM", "READ","STOP","SLEEP"
+            "SLEEP", "END", "LIST", "REM", "READ","STOP",
             "WRITE", "APPEND", "RUN", "CLS", "CLEAR",
             "EXIT", "ABS", "SIN", "COS"]#write read append 讀檔 寫入 加入
             #"LET", "PRINT", "INPUT", "IF", "GOTO","LIST", "REM", "READ", "RUN", "CLS", "CLEAR"

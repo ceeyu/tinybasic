@@ -188,6 +188,35 @@ def executeTokens(tokens):#執行指令
                         return
                 linePointer = linePointer + 1
 
+        elif command == "READ": #讀出 #debug:同WRITE(還沒辦法改檔名)，還有，還沒辦法使用，只能輸出
+            linePointer = 0
+            file1 = open("MyFile.txt","r") #'r'是讀存在的檔案
+            i = 0
+            while i <= maxLine:
+                print(file1.read())
+                i=i+1
+            file1.close()
+        elif command == "WRITE": #寫入
+            file1 = open("MyFile.txt","a") #'a'是創建並寫入 #debug:還沒辦法改檔名
+            i = 0
+            while i <= maxLine:
+                if i in lines:
+                    line = str(i)
+                    for token in lines[i]:
+                        tokenVal = ""
+                        if token[1] == "NUM":
+                            tokenVal = getNumberPrintFormat(token[0])
+                        elif token[1] == "STRING":
+                            tokenVal = f"\"{token[0]}\""
+                        else:
+                            tokenVal = token[0]
+                        line += " " + str(tokenVal)
+                    file1.writelines(line)
+                    file1.writelines("\n")
+                i = i + 1
+            file1.close()
+
+            
 def getNumberPrintFormat(num):#給予整數值
     if int(num) == float(num):
         return int(num)

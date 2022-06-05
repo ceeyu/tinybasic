@@ -3,11 +3,12 @@ from math import sin
 from math import cos
 import math
 import os
+import time
 
 
 VERSION = 1
 reserved = ["LET", "PRINT", "INPUT", "IF", "ELSE","GOTO",
-            "SLEEP", "END", "LIST", "REM", "READ","STOP",
+            "SLEEP", "END", "LIST", "REM", "READ","STOP","SLEEP"
             "WRITE", "APPEND", "RUN", "CLS", "CLEAR",
             "EXIT", "ABS", "SIN", "COS"]#write read append 讀檔 寫入 加入
             #"LET", "PRINT", "INPUT", "IF", "GOTO","LIST", "REM", "READ", "RUN", "CLS", "CLEAR"
@@ -26,6 +27,7 @@ printReady = True
 
 def main():
     print(f"Tiny BASIC version {VERSION}\nby Chung-Yuan Huang")
+    print(f"資工二第 組")
     while True:
             try:
                 if printReady:
@@ -139,8 +141,13 @@ def executeTokens(tokens):#執行指令
             maxLine = 0
             lines = {}
             identifiers = {}
-        elif command == "STOP":#暫停
+        elif command == "STOP":                                        #STOP暫停
             os.system("pause")
+        elif command == "SLEEP":
+            testnum=input('想等多久?輸入一個數字(單位秒): ')
+            testnum=float(testnum)
+            time.sleep(testnum)
+
         elif command == "LIST":#列出前面所寫之指令
             i = 0
             while i <= maxLine:
@@ -216,7 +223,7 @@ def executeTokens(tokens):#執行指令
                 i = i + 1
             file1.close()
 
-            
+
 def getNumberPrintFormat(num):#給予整數值
     if int(num) == float(num):
         return int(num)

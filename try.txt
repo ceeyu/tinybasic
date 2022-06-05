@@ -17,3 +17,25 @@ GOSUB/RETURN
 210 RETURN
 300 PRINT “2nd”
 310 RETURN
+
+老師測資=>IF THEN GOTO
+10 REM +----------------------+
+20 REM |Tiny BASIC Disan Count|
+30 REM +----------------------+ 
+40 PRINT "Enter a number:" 
+50 INPUT max 
+60 IF max % 2 == 0 THEN PRINT max . " is even!" 
+70 LET max = max - 1 
+80 IF max >= 0 THEN GOTO 60 
+90 PRINT "Done!”
+100 END
+
+STOP測資:
+STOP
+螢幕會跳出: 請按任意鍵繼續 . . .
+
+SLEEP測資
+SLEEP
+螢幕會跳出: 想等多久?輸入一個數字(單位秒): 
+(輸入數字按enter會開始計時)
+(秒數到才能再度在exe檔裡面工作)

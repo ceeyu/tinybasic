@@ -2,11 +2,12 @@
 from math import sin
 from math import cos
 import math
+import os
 
 
 VERSION = 1
 reserved = ["LET", "PRINT", "INPUT", "IF", "ELSE","GOTO",
-            "SLEEP", "END", "LIST", "REM", "READ",
+            "SLEEP", "END", "LIST", "REM", "READ","STOP",
             "WRITE", "APPEND", "RUN", "CLS", "CLEAR",
             "EXIT", "ABS", "SIN", "COS"]#write read append 讀檔 寫入 加入
             #"LET", "PRINT", "INPUT", "IF", "GOTO","LIST", "REM", "READ", "RUN", "CLS", "CLEAR"
@@ -138,6 +139,8 @@ def executeTokens(tokens):#執行指令
             maxLine = 0
             lines = {}
             identifiers = {}
+        elif command == "STOP":#暫停
+            os.system("pause")
         elif command == "LIST":#列出前面所寫之指令
             i = 0
             while i <= maxLine:

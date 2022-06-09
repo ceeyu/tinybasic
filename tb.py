@@ -1,6 +1,9 @@
 #林 test
 from math import sin
 from math import cos
+from math import tan
+from math import exp
+from math import sqrt
 import math
 import os
 import time
@@ -10,7 +13,8 @@ VERSION = 1
 reserved = ["LET", "PRINT", "INPUT", "IF", "ELSE","GOTO",
             "SLEEP", "END", "LIST", "REM", "READ","STOP",
             "WRITE", "APPEND", "RUN", "CLS", "CLEAR",
-            "EXIT", "ABS", "SIN", "COS"]#write read append 讀檔 寫入 加入
+            "EXIT", "ABS", "SIN", "COS", "TAN", "ROUND",
+            "EXP", "SQRT"]#write read append 讀檔 寫入 加入
             #"LET", "PRINT", "INPUT", "IF", "GOTO","LIST", "REM", "READ", "RUN", "CLS", "CLEAR"
 operators = [["==", "!=", ">", "<", ">=", "<="], #第0層
              ["."],
@@ -172,7 +176,14 @@ def executeTokens(tokens):#執行指令
             if not(sinHandler(tokens[1:])): stopExecution = True
         elif command == "COS":                                        #cos函式
             if not(cosHandler(tokens[1:])): stopExecution = True
-
+        elif command == "ROUND":                                      #round函式
+            if not(roundHandler(tokens[1:])): stopExecution = True
+        elif command == "EXP":                                        #exp函式
+            if not(expHandler(tokens[1:])): stopExecution = True
+        elif command == "SQRT":                                       #sqrt函式
+            if not(sqrtHandler(tokens[1:])): stopExecution = True
+        elif command == "TAN":                                        #tan函式
+            if not(tanHandler(tokens[1:])): stopExecution = True
 
         elif command == "LET":
             if not(letHandler(tokens[1:])): stopExecution = True
@@ -395,6 +406,53 @@ def cosHandler(tokens):                                   #COS數學
     print(cos(math.radians(exprRes[0])))
     return True
 
+def tanHandler(tokens):                                   #TAN數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(tan(math.radians(exprRes[0])))
+    return True
+
+def roundHandler(tokens):                                 #ROUND數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(round(exprRes[0]))
+    return True
+
+def expHandler(tokens):                                   #EXP數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(exp(exprRes[0]))
+    return True
+    
+def sqrtHandler(tokens):                                  #SQRT數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(sqrt(exprRes[0]))
+    return True
 
 
 def getIdentifierValue(name):

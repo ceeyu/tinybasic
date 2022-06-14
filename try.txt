@@ -30,6 +30,11 @@ GOSUB/RETURN
 90 PRINT "Done!”
 100 END
 
+IF THEN ELSE 測資
+10 INPUT X
+20 IF X % 2 == 0 THEN PRINT "T" ELSE PRINT "F"
+
+
 STOP測資:
 STOP
 螢幕會跳出: 請按任意鍵繼續 . . .
@@ -39,3 +44,19 @@ SLEEP
 螢幕會跳出: 想等多久?輸入一個數字(單位秒): 
 (輸入數字按enter會開始計時)
 (秒數到才能再度在exe檔裡面工作)
+
+CEIL/FLOOR測資
+10 LET X = 5.4
+20 CEIL X
+30 FLOOR X 
+RUN 
+螢幕出現:
+6
+5
+
+LOGTEN測資(對數字取log以十為底)
+10 LET X = 1
+20 LOGTEN
+RUN
+螢幕出現
+0.0

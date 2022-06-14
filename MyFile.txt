@@ -2,3 +2,17 @@
 20 PRINT x
 30 LET a = 5
 40 PRINT a
+10 LET x = 10
+20 PRINT x
+30 LET a = 5
+40 PRINT a
+50 INPUT max
+60 IF max % 2 == 0 THEN PRINT max . " is even!"
+70 LET max = max - 1
+80 IF max >= 0 THEN GOTO 60
+90 PRINT "Done!"
+100 END
+10 LET X = 2
+20 PRINT X
+10 LET A = 4
+20 PRINT A

@@ -4,6 +4,9 @@ from math import cos
 from math import tan
 from math import exp
 from math import sqrt
+from math import ceil
+from math import floor
+from math import log10
 import math
 import os
 import time
@@ -13,7 +16,7 @@ VERSION = 1
 reserved = ["LET", "PRINT", "INPUT", "IF", "ELSE","GOTO",
             "SLEEP", "END", "LIST", "REM", "READ","STOP",
             "WRITE", "APPEND", "RUN", "CLS", "CLEAR",
-            "EXIT", "ABS", "SIN", "COS", "TAN", "ROUND",
+            "EXIT", "ABS", "SIN", "COS", "TAN", "ROUND","CEIL","FLOOR","LOGTEN",
             "EXP", "SQRT"]#write read append 讀檔 寫入 加入
             #"LET", "PRINT", "INPUT", "IF", "GOTO","LIST", "REM", "READ", "RUN", "CLS", "CLEAR"
 operators = [["==", "!=", ">", "<", ">=", "<="], #第0層
@@ -31,7 +34,7 @@ printReady = True
 
 def main():
     print(f"Tiny BASIC version {VERSION}\nby Chung-Yuan Huang")
-    print(f"資工二第 組")
+    print(f"資工二第22組")
     while True:
             try:
                 if printReady:
@@ -178,6 +181,12 @@ def executeTokens(tokens):#執行指令
             if not(cosHandler(tokens[1:])): stopExecution = True
         elif command == "ROUND":                                      #round函式
             if not(roundHandler(tokens[1:])): stopExecution = True
+        elif command == "CEIL":                                      #ceil函式
+            if not(ceilHandler(tokens[1:])): stopExecution = True    
+        elif command == "FLOOR":                                      #floor函式
+            if not(floorHandler(tokens[1:])): stopExecution = True    
+        elif command == "LOGTEN":                                      #log10函式
+            if not(logtenHandler(tokens[1:])): stopExecution = True    
         elif command == "EXP":                                        #exp函式
             if not(expHandler(tokens[1:])): stopExecution = True
         elif command == "SQRT":                                       #sqrt函式
@@ -280,43 +289,55 @@ def inputHandler(tokens):#負責處理輸入的行號
 
 def ifHandler(tokens):
     thenPos = None
+    elsePos = None
     for i in range(0, len(tokens)): #i=0~指令長度
         if tokens[i][1] == "THEN":
             thenPos = i
-            break
+    for j in range(i, len(tokens)): #j=i~指令長度
+        if tokens[j][1] == "ELSE":
+            elsePos = j
+            break    
     if thenPos == None:
         print("Error: Malformed IF statement.")#IF格式錯誤
         return
     exprValue = solveExpression(tokens[0:thenPos], 0) #解碼指令定位且層數=0
+
+    if elsePos == None:
+        print("Error: Malformed ELSE statement.")#IF格式錯誤
+        return
+    exprValue = solveExpression(tokens[i:elsePos], 0) #解碼指令定位且層數=0 
     if exprValue == None:
         return
+
     elif exprValue[0] != 0:
         if len(tokens[i+1:]) == 0: #i+1的指令長度
             print("Error: Malformed IF statement.")#IF格式錯誤
             return      #flase
         executeTokens(tokens[i+1:]) #執行指令
+        
     return True
-def elseHandler(tokens):
-    thenPos = None
-    for i in range(0, len(tokens)): #i=0~指令長度
-        if tokens[i][1] == "THEN":
-            thenPos = i
-            break
-        if tokens[i][1] == "ELSE":
-            thenPos = i
-            break
-    if thenPos == None:
-        print("Error: Malformed IF statement.")#IF格式錯誤
-        return
-    exprValue = solveExpression(tokens[0:thenPos], 0) #解碼指令定位且層數=0
-    if exprValue == None:
-        return
-    elif exprValue[0] != 0:
-        if len(tokens[i+1:]) == 0: #i+1的指令長度
-            print("Error: Malformed IF statement.")#IF格式錯誤
-            return      #flase
-        executeTokens(tokens[i+1:]) #執行指令
-    return True
+
+# def elseHandler(tokens):
+#     thenPos = None
+#     for i in range(0, len(tokens)): #i=0~指令長度
+#         if tokens[i][1] == "THEN":
+#             thenPos = i
+#             break
+#         if tokens[i][1] == "ELSE":
+#             thenPos = i
+#             break
+#     if thenPos == None:
+#         print("Error: Malformed IF statement.")#IF格式錯誤
+#         return
+#     exprValue = solveExpression(tokens[0:thenPos], 0) #解碼指令定位且層數=0
+#     if exprValue == None:
+#         return
+#     elif exprValue[0] != 0:
+#         if len(tokens[i+1:]) == 0: #i+1的指令長度
+#             print("Error: Malformed IF statement.")#IF格式錯誤
+#             return      #flase
+#         executeTokens(tokens[i+1:]) #執行指令
+#     return True
 
 
 
@@ -429,6 +450,43 @@ def roundHandler(tokens):                                 #ROUND數學
         exprRes[0] = getNumberPrintFormat(exprRes[0])
     print(round(exprRes[0]))
     return True
+
+def ceilHandler(tokens):                                 #CEIL數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(math.ceil(exprRes[0]))
+    return True
+
+def floorHandler(tokens):                                 #FLOOR數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(math.floor(exprRes[0]))
+    return True
+
+def logtenHandler(tokens):                                 #LOGTEN數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(math.log10(exprRes[0]))
+    return True
+
 
 def expHandler(tokens):                                   #EXP數學
     if len(tokens) == 0:

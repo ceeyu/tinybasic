@@ -20,7 +20,7 @@ reserved = ["LET", "PRINT", "INPUT", "IF", "ELSE","GOTO",
             "SLEEP", "END", "LIST", "REM", "LOAD","STOP",
             "SAVE", "APPEND", "RUN", "CLS", "CLEAR",
             "EXIT", "ABS", "SIN", "COS", "TAN", "ROUND","CEIL","FLOOR","LOGTEN","RADIANS","DEGREES","GAMMA",
-            "EXP", "SQRT"]#write read append 讀檔 寫入 加入
+            "EXP", "SQRT", "++", "--"]#write read append 讀檔 寫入 加入
             #"LET", "PRINT", "INPUT", "IF", "GOTO","LIST", "REM", "READ", "RUN", "CLS", "CLEAR"
 operators = [["==", "!=", ">", "<", ">=", "<="], #第0層
              ["."],
@@ -202,6 +202,11 @@ def executeTokens(tokens):#執行指令
             if not(sqrtHandler(tokens[1:])): stopExecution = True
         elif command == "TAN":                                        #tan函式
             if not(tanHandler(tokens[1:])): stopExecution = True
+        elif command == "++":                                           #++函式
+            if not(plusHandler(tokens[1:])): stopExecution = True
+        elif command == "--":                                           #--函式
+            if not(minusHandler(tokens[1:])): stopExecution = True
+ 
 
         elif command == "LET":
             if not(letHandler(tokens[1:])): stopExecution = True
@@ -557,6 +562,29 @@ def sqrtHandler(tokens):                                  #SQRT數學
     print(sqrt(exprRes[0]))
     return True
 
+def plusHandler(tokens):                                   #++數學運算
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+        exprRes[0] = exprRes[0] + 1
+    return True
+
+def minusHandler(tokens):                                   #--數學運算
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+        exprRes[0] = exprRes[0] - 1
+    return True
 
 def getIdentifierValue(name):
     return identifiers[name]

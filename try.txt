@@ -19,31 +19,6 @@ LOAD
 10 let x = 10 << 2
 20 print x
 
-GOSUB/RETURN
-100 GOSUB 200
-110 PRINT “HERE”
-200 PRINT ”Hello, World!”
-205 GOSUB 300
-210 RETURN
-300 PRINT “2nd”
-310 RETURN
-
-老師測資=>IF THEN GOTO
-10 REM +----------------------+
-20 REM |Tiny BASIC Disan Count|
-30 REM +----------------------+ 
-40 PRINT "Enter a number:" 
-50 INPUT max 
-60 IF max % 2 == 0 THEN PRINT max . " is even!" 
-70 LET max = max - 1 
-80 IF max >= 0 THEN GOTO 60 
-90 PRINT "Done!”
-100 END
-
-IF THEN ELSE 測資
-10 INPUT X
-20 IF X % 2 == 0 THEN PRINT "T" ELSE PRINT "F"
-
 
 STOP測資:
 STOP

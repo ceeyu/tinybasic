@@ -7,6 +7,9 @@ from math import sqrt
 from math import ceil
 from math import floor
 from math import log10
+from math import radians
+from math import degrees
+from math import gamma
 import math
 import os
 import time
@@ -14,9 +17,9 @@ import time
 
 VERSION = 1
 reserved = ["LET", "PRINT", "INPUT", "IF", "ELSE","GOTO",
-            "SLEEP", "END", "LIST", "REM", "READ","STOP",
-            "WRITE", "APPEND", "RUN", "CLS", "CLEAR",
-            "EXIT", "ABS", "SIN", "COS", "TAN", "ROUND","CEIL","FLOOR","LOGTEN",
+            "SLEEP", "END", "LIST", "REM", "LOAD","STOP",
+            "SAVE", "APPEND", "RUN", "CLS", "CLEAR",
+            "EXIT", "ABS", "SIN", "COS", "TAN", "ROUND","CEIL","FLOOR","LOGTEN","RADIANS","DEGREES","GAMMA",
             "EXP", "SQRT"]#write read append 讀檔 寫入 加入
             #"LET", "PRINT", "INPUT", "IF", "GOTO","LIST", "REM", "READ", "RUN", "CLS", "CLEAR"
 operators = [["==", "!=", ">", "<", ">=", "<="], #第0層
@@ -187,6 +190,12 @@ def executeTokens(tokens):#執行指令
             if not(floorHandler(tokens[1:])): stopExecution = True    
         elif command == "LOGTEN":                                      #log10函式
             if not(logtenHandler(tokens[1:])): stopExecution = True    
+        elif command == "RADIANS":                                      #radians函式
+            if not(radiansHandler(tokens[1:])): stopExecution = True
+        elif command == "DEGREES":                                      #degrees函式
+            if not(degreesHandler(tokens[1:])): stopExecution = True
+        elif command == "GAMMA":                                      #gamma函式
+            if not(gammaHandler(tokens[1:])): stopExecution = True
         elif command == "EXP":                                        #exp函式
             if not(expHandler(tokens[1:])): stopExecution = True
         elif command == "SQRT":                                       #sqrt函式
@@ -215,16 +224,16 @@ def executeTokens(tokens):#執行指令
                         return
                 linePointer = linePointer + 1
 
-        elif command == "READ": #讀出 #debug:同WRITE(還沒辦法改檔名)，還有，還沒辦法使用，只能輸出
+        elif command == "LOAD": #讀出 #debug:同WRITE(還沒辦法改檔名)，還有，還沒辦法使用，只能輸出
             linePointer = 0
-            file1 = open("MyFile.txt","r") #'r'是讀存在的檔案
-            i = 0
-            while i <= maxLine:
-                print(file1.read())
-                i=i+1
+            fileName = input()
+            file1 = open(fileName,"r") #'r'是讀存在的檔案
+            print(file1.read())
             file1.close()
-        elif command == "WRITE": #寫入
-            file1 = open("MyFile.txt","a") #'a'是創建並寫入 #debug:還沒辦法改檔名
+
+        elif command == "SAVE": #寫入
+            fileName = input()
+            file1 = open(fileName,"a") #'a'是創建並寫入 #debug:還沒辦法改檔名
             i = 0
             while i <= maxLine:
                 if i in lines:
@@ -239,7 +248,8 @@ def executeTokens(tokens):#執行指令
                             tokenVal = token[0]
                         line += " " + str(tokenVal)
                     file1.writelines(line)
-                    file1.writelines("\n")
+                    if i != maxLine :
+                        file1.writelines("\n")
                 i = i + 1
             file1.close()
 
@@ -487,6 +497,41 @@ def logtenHandler(tokens):                                 #LOGTEN數學
     print(math.log10(exprRes[0]))
     return True
 
+def radiansHandler(tokens):                                 #RADIANS數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(math.radians(exprRes[0]))
+    return True
+
+def degreesHandler(tokens):                                 #DEGREES數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(math.degrees(exprRes[0]))
+    return True
+
+def gammaHandler(tokens):                                 #GAMMA數學
+    if len(tokens) == 0:
+        print("Error: Expected identifier.")
+        return
+    exprRes = solveExpression(tokens, 0)
+    if exprRes == None:
+        return
+    if exprRes[1] == "NUM":
+        exprRes[0] = getNumberPrintFormat(exprRes[0])
+    print(math.gamma(exprRes[0]))
+    return True
 
 def expHandler(tokens):                                   #EXP數學
     if len(tokens) == 0:

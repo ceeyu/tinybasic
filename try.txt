@@ -1,9 +1,19 @@
-WRITE
+SAVE:
 10 LET x = 10
 20 PRINT x
 30 LET a = 5
 40 PRINT a
-WRITE
+SAVE
+123.txt
+
+LOAD:
+LOAD
+123.txt
+螢幕會出現:
+10 LET x = 10
+20 PRINT x
+30 LET a = 5
+40 PRINT a
 
 左右移:
 10 let x = 10 << 2
@@ -60,3 +70,24 @@ LOGTEN測資(對數字取log以十為底)
 RUN
 螢幕出現
 0.0
+
+RADIANS:
+10 LET x = 180
+20 RADIANS x
+RUN
+螢幕會出現:
+3.141592653589793
+
+DEGREES:
+10 LET x = 3.1415926
+20 DEGREES x
+RUN
+螢幕會出現:
+179.99999692953102
+
+GAMMA:
+10 LET x = 10
+20 GAMMA x
+RUN
+螢幕會出現:
+362880.0
